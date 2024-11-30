@@ -1,6 +1,8 @@
 package com.app.Memora.authentication.entities;
 
 
+import com.app.Memora.enroll.entities.Enroll;
+import com.app.Memora.settings.entities.Settings;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -20,7 +22,7 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false)
     private String fullName;
@@ -32,13 +34,19 @@ public class User implements UserDetails {
         return fullName;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
     public String getEmail() {
         return email;
     }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Enroll> enrollments = new ArrayList<>();
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private Settings settings;
 
     public User setEmail(String email) {
         this.email = email;
@@ -99,5 +107,9 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public Settings getSettings() {
+        return settings;
     }
 }

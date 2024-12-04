@@ -1,15 +1,14 @@
 package com.app.Memora.card.services;
 
 import com.app.Memora.card.entities.Card;
-import com.app.Memora.enums.DifficultyLevel;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CardService {
+    List<Card>getAllCards();
     Card createCard(Card card, Long deckId);
-    Card updateCard(Card card);
+    Card updateCard(Long id, Card card);
     void deleteCard(Long id);
-    Card getCardById(Long id);
-    List<Card> getCardsByDeck(Long deckId);
-    List<Card> getCardsByDifficulty(DifficultyLevel difficulty);
+    Optional<Card> getCardById(Long id);
 }

@@ -24,7 +24,7 @@ public class StoreController {
     @PostMapping("/decks/{deckId}/submit")
     public ResponseEntity<ApiResponse<Void>> submitDeckForReview(@PathVariable Long deckId) {
         log.info("Submitting deck {} for review by: {}", deckId, userService.getCurrentUser());
-        storeService.submitDeckForReview(deckId);
+        storeService.submitDeckForReview(deckId , userService.getCurrentUser());
         return ResponseEntity.ok(new ApiResponse<>(
                 true,
                 "Deck submitted for review",

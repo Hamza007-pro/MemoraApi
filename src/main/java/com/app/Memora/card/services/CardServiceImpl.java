@@ -2,57 +2,43 @@ package com.app.Memora.card.services;
 
 import com.app.Memora.card.entities.Card;
 import com.app.Memora.card.repositories.CardRepository;
-import com.app.Memora.deck.entities.Deck;
-import com.app.Memora.deck.repositories.DeckRepository;
-import com.app.Memora.enums.DifficultyLevel;
-import com.app.Memora.exceptions.ResourceNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class CardServiceImpl implements CardService {
-    private final CardRepository cardRepository;
-    private final DeckRepository deckRepository;
+    @Autowired
+    private CardRepository cardRepository;
 
-    @Override
-    @Transactional
+    public List<Card> getAllCards() {
+        return cardRepository.findAll();
+    }
+
+    public Optional<Card> getCardById(Long id) {
+        return cardRepository.findById(id);
+    }
+
     public Card createCard(Card card, Long deckId) {
-        log.info("Creating new card for deck: {}", deckId);
-        Deck deck = deckRepository.findById(deckId)
-                .orElseThrow(() -> new ResourceNotFoundException("Deck not found"));
-        card.setDeck(deck);
         return cardRepository.save(card);
     }
 
-    @Override
-    public Card updateCard(Card card) {
-        return null;
+    public Card updateCard(Long id, Card cardDetails) {
+        Card card = cardRepository.findById(id).orElseThrow(() -> new RuntimeException("Card not found"));
+        card.setDifficultyLevel(cardDetails.getDifficultyLevel());
+        card.setContent(cardDetails.getContent());
+        card.setDeck(cardDetails.getDeck());
+        return cardRepository.save(card);
     }
 
-    @Override
     public void deleteCard(Long id) {
-
-    }
-
-    @Override
-    public Card getCardById(Long id) {
-        return null;
-    }
-
-    @Override
-    public List<Card> getCardsByDeck(Long deckId) {
-        return null;
-    }
-
-    @Override
-    public List<Card> getCardsByDifficulty(DifficultyLevel difficulty) {
-        return null;
+        cardRepository.deleteById(id);
     }
 
     // Other methods implementation...

@@ -7,6 +7,7 @@ import com.app.Memora.util.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,42 +19,34 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class QuestionController {
-    private final QuestionService questionService;
-    private final UserService userService;
+    @Autowired
+    private QuestionService questionService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Question>> createQuestion(@Valid @RequestBody Question question) {
-        log.info("Creating new question by: {}", userService.getCurrentUser());
-        Question createdQuestion = questionService.createQuestion(question);
-        return ResponseEntity.ok(new ApiResponse<>(
-                true,
-                "Question created successfully",
-                createdQuestion,
-                LocalDateTime.of(2024, 11, 30, 15, 48, 6)
-        ));
+    public Question createQuestion(@RequestBody Question question) {
+        return questionService.saveQuestion(question);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Question> getQuestionById(@PathVariable Long id) {
+        return questionService.getQuestionById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping
+    public List<Question> getAllQuestions() {
+        return questionService.getAllQuestions();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Question>> updateQuestion(@PathVariable Long id,
-                                                                @Valid @RequestBody Question question) {
-        question.setId(id);
-        Question updatedQuestion = questionService.updateQuestion(question);
-        return ResponseEntity.ok(new ApiResponse<>(
-                true,
-                "Question updated successfully",
-                updatedQuestion,
-                LocalDateTime.of(2024, 11, 30, 15, 48, 6)
-        ));
+    public ResponseEntity<Question> updateQuestion(@PathVariable Long id, @RequestBody Question questionDetails) {
+        return ResponseEntity.ok(questionService.updateQuestion(id, questionDetails));
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<Question>>> searchQuestions(@RequestParam String query) {
-        List<Question> questions = questionService.searchQuestions(query);
-        return ResponseEntity.ok(new ApiResponse<>(
-                true,
-                "Questions retrieved successfully",
-                questions,
-                LocalDateTime.of(2024, 11, 30, 15, 48, 6)
-        ));
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteQuestion(@PathVariable Long id) {
+        questionService.deleteQuestion(id);
+        return ResponseEntity.noContent().build();
     }
 }

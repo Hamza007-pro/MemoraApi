@@ -6,63 +6,50 @@ import com.app.Memora.content.repositories.ContentRepository;
 import com.app.Memora.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class ContentServiceImpl implements ContentService {
-    private final ContentRepository contentRepository;
-    private final UserService userService;
+    @Autowired
+    private ContentRepository contentRepository;
 
     @Override
-    @Transactional
-    public Content createContent(Content content) {
-        log.info("Creating new content by user: {}", userService.getCurrentUser().getId());
-        content.setDateCreated(LocalDateTime.now(ZoneOffset.UTC));
-        content.setDateModified(LocalDateTime.now(ZoneOffset.UTC));
+    public Content saveContent(Content content) {
         return contentRepository.save(content);
     }
 
     @Override
-    @Transactional
-    public Content updateContent(Content content) {
-        log.info("Updating content ID: {} by user: {}", content.getId(), userService.getCurrentUser().getId());
-        return contentRepository.findById(content.getId())
-                .map(existingContent -> {
-                    existingContent.setImage(content.getImage());
-                    existingContent.setQuestion(content.getQuestion());
-                    existingContent.setAnswer(content.getAnswer());
-                    existingContent.setDateModified(LocalDateTime.now(ZoneOffset.UTC));
-                    return contentRepository.save(existingContent);
-                })
-                .orElseThrow(() -> new ResourceNotFoundException("Content not found"));
+    public Optional<Content> getContentById(Long id) {
+        return contentRepository.findById(id);
+    }
+
+    @Override
+    public List<Content> getAllContents() {
+        return contentRepository.findAll();
+    }
+
+    @Override
+    public Content updateContent(Long id, Content contentDetails) {
+        Content content = contentRepository.findById(id).orElseThrow();
+        content.setImage(contentDetails.getImage());
+        content.setQuestion(contentDetails.getQuestion());
+        content.setAnswer(contentDetails.getAnswer());
+        content.setDateModified(LocalDateTime.now());
+        return contentRepository.save(content);
     }
 
     @Override
     public void deleteContent(Long id) {
-
+        contentRepository.deleteById(id);
     }
-
-    @Override
-    public Content getContentById(Long id) {
-        return null;
-    }
-
-    @Override
-    public List<Content> getContentsByDateRange(LocalDateTime start, LocalDateTime end) {
-        return null;
-    }
-
-    @Override
-    public List<Content> getRecentlyModifiedContent(LocalDateTime since) {
-        return null;
-    }
-
     // Other methods implementation...
 }

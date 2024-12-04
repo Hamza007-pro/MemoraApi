@@ -8,6 +8,7 @@ import com.app.Memora.util.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,66 +20,34 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class CardController {
-    private final CardService cardService;
-    private final UserService userService;
+    @Autowired
+    private CardService cardService;
 
-    @PostMapping("/decks/{deckId}")
-    public ResponseEntity<ApiResponse<Card>> createCard(@PathVariable Long deckId,
-                                                        @Valid @RequestBody Card card) {
-        log.info("Creating new card in deck {} by: {}", deckId, userService.getCurrentUser());
-        Card createdCard = cardService.createCard(card, deckId);
-        return ResponseEntity.ok(new ApiResponse<>(
-                true,
-                "Card created successfully",
-                createdCard,
-                LocalDateTime.of(2024, 11, 30, 15, 48, 6)
-        ));
+    @GetMapping
+    public List<Card> getAllCards() {
+        return cardService.getAllCards();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Card> getCardById(@PathVariable Long id) {
+        return cardService.getCardById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    public Card createCard(@RequestBody Card card, @RequestParam Long deckId) {
+        return cardService.createCard(card, deckId);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Card>> updateCard(@PathVariable Long id,
-                                                        @Valid @RequestBody Card card) {
-        card.setId(id);
-        Card updatedCard = cardService.updateCard(card);
-        return ResponseEntity.ok(new ApiResponse<>(
-                true,
-                "Card updated successfully",
-                updatedCard,
-                LocalDateTime.of(2024, 11, 30, 15, 48, 6)
-        ));
+    public ResponseEntity<Card> updateCard(@PathVariable Long id, @RequestBody Card cardDetails) {
+        return ResponseEntity.ok(cardService.updateCard(id, cardDetails));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteCard(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCard(@PathVariable Long id) {
         cardService.deleteCard(id);
-        return ResponseEntity.ok(new ApiResponse<>(
-                true,
-                "Card deleted successfully",
-                null,
-                LocalDateTime.of(2024, 11, 30, 15, 48, 6)
-        ));
-    }
-
-    @GetMapping("/deck/{deckId}")
-    public ResponseEntity<ApiResponse<List<Card>>> getCardsByDeck(@PathVariable Long deckId) {
-        List<Card> cards = cardService.getCardsByDeck(deckId);
-        return ResponseEntity.ok(new ApiResponse<>(
-                true,
-                "Cards retrieved successfully",
-                cards,
-                LocalDateTime.of(2024, 11, 30, 15, 48, 6)
-        ));
-    }
-
-    @GetMapping("/difficulty/{level}")
-    public ResponseEntity<ApiResponse<List<Card>>> getCardsByDifficulty(
-            @PathVariable DifficultyLevel level) {
-        List<Card> cards = cardService.getCardsByDifficulty(level);
-        return ResponseEntity.ok(new ApiResponse<>(
-                true,
-                "Cards retrieved successfully",
-                cards,
-                LocalDateTime.of(2024, 11, 30, 15, 48, 6)
-        ));
+        return ResponseEntity.noContent().build();
     }
 }

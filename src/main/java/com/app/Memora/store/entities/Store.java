@@ -4,18 +4,44 @@ import com.app.Memora.deck.entities.Deck;
 import com.app.Memora.enums.Status;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
+@Table(name = "store")
 @Data
-@Table(name = "stores")
 public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private Status status;
+    @Column(nullable = false)
+    private String name;
 
-    @OneToOne(mappedBy = "store")
-    private Deck deck;
+    @Column
+    private String description;
+
+    // One store has many decks
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "store")
+    private List<Deck> decks;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.of(2024, 11, 30, 17, 34, 50);
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.of(2024, 11, 30, 17, 34, 50);
+    }
 }

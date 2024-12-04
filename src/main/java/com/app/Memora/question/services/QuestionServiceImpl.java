@@ -1,48 +1,50 @@
 package com.app.Memora.question.services;
 
 import com.app.Memora.authentication.services.UserService;
+import com.app.Memora.exceptions.ResourceNotFoundException;
 import com.app.Memora.question.entities.Question;
 import com.app.Memora.question.repositories.QuestionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class QuestionServiceImpl implements QuestionService {
-    private final QuestionRepository questionRepository;
-    private final UserService userService;
+    @Autowired
+    private QuestionRepository questionRepository;
 
     @Override
-    @Transactional
-    public Question createQuestion(Question question) {
-        log.info("Creating new question by user: {}",   userService.getCurrentUser().getId());
+    public Question saveQuestion(Question question) {
         return questionRepository.save(question);
     }
 
     @Override
-    public Question updateQuestion(Question question) {
-        return null;
+    public Optional<Question> getQuestionById(Long id) {
+        return questionRepository.findById(id);
+    }
+
+    @Override
+    public List<Question> getAllQuestions() {
+        return questionRepository.findAll();
+    }
+
+    @Override
+    public Question updateQuestion(Long id, Question questionDetails) {
+        Question question = questionRepository.findById(id).orElseThrow();
+        question.setContent(questionDetails.getContent());
+        return questionRepository.save(question);
     }
 
     @Override
     public void deleteQuestion(Long id) {
-
+        questionRepository.deleteById(id);
     }
-
-    @Override
-    public Question getQuestionById(Long id) {
-        return null;
-    }
-
-    @Override
-    public List<Question> searchQuestions(String query) {
-        return questionRepository.findByContentContainingIgnoreCase(query);
-    }
-
     // Other methods implementation...
 }

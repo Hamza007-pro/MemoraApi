@@ -8,6 +8,4 @@ import java.util.List;
 
 @Repository
 public interface ContentRepository extends JpaRepository<Content, Long> {
-    List<Content> findByDateCreatedBetween(LocalDateTime start, LocalDateTime end);
-    List<Content> findByDateModifiedAfter(LocalDateTime date);
 }

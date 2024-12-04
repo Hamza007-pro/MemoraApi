@@ -1,5 +1,6 @@
 package com.app.Memora.question.entities;
 
+import com.app.Memora.answer.entities.Answer;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -13,4 +14,5 @@ public class Question {
 
     @Column(nullable = false)
     private String content;
+
 }

@@ -1,10 +1,12 @@
 package com.app.Memora.deck.entities;
 
+import com.app.Memora.authentication.entities.User;
 import com.app.Memora.card.entities.Card;
 import com.app.Memora.categorie.entities.Category;
 import com.app.Memora.enroll.entities.Enroll;
 import com.app.Memora.store.entities.Store;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,10 +31,21 @@ public class Deck {
     @Column(name = "is_public")
     private boolean isPublic;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    private User createdBy;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
-    @OneToMany(mappedBy = "deck", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "deck", fetch = FetchType.LAZY)
     private List<Card> cards = new ArrayList<>();
 
     @ManyToMany
@@ -45,4 +58,14 @@ public class Deck {
 
     @OneToMany(mappedBy = "deck", cascade = CascadeType.ALL)
     private List<Enroll> enrollments = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.of(2024, 11, 30, 17, 34, 50);
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.of(2024, 11, 30, 17, 34, 50);
+    }
 }

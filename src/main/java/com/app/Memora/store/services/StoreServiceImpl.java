@@ -1,5 +1,6 @@
 package com.app.Memora.store.services;
 
+import com.app.Memora.authentication.entities.User;
 import com.app.Memora.deck.entities.Deck;
 import com.app.Memora.deck.repositories.DeckRepository;
 import com.app.Memora.enums.Status;
@@ -22,24 +23,32 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     @Transactional
-    public void submitDeckForReview(Long deckId) {
+    public Deck submitDeckForReview(Long deckId, User user) {
         log.info("Submitting deck {} for review", deckId);
         Deck deck = deckRepository.findById(deckId)
                 .orElseThrow(() -> new ResourceNotFoundException("Deck not found"));
 
         Store store = deck.getStore();
-        store.setStatus(Status.PENDING);
-        storeRepository.save(store);
+        deck.setStore(store);
+        deck.setCreatedBy(user);
+        deck.setPublic(false);
+        return deckRepository.save(deck);
     }
 
     @Override
     public void approveDeck(Long deckId) {
-
+        Deck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new ResourceNotFoundException("Deck not found"));
+        deck.setPublic(true);
+        deckRepository.save(deck);
     }
 
     @Override
     public void rejectDeck(Long deckId) {
-
+        Deck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new ResourceNotFoundException("Deck not found"));
+        deck.setPublic(false);
+        deckRepository.save(deck);
     }
 
     @Override

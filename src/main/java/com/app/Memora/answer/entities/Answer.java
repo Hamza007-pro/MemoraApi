@@ -1,5 +1,7 @@
 package com.app.Memora.answer.entities;
 
+import com.app.Memora.question.entities.Question;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 @Entity
@@ -12,4 +14,5 @@ public class Answer {
 
     @Column(nullable = false)
     private String content;
+
 }

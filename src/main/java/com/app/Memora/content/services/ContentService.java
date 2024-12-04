@@ -4,12 +4,12 @@ import com.app.Memora.content.entities.Content;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface ContentService {
-    Content createContent(Content content);
-    Content updateContent(Content content);
+    Content saveContent(Content content);
+    Optional<Content> getContentById(Long id);
+    List<Content> getAllContents();
+    Content updateContent(Long id, Content contentDetails);
     void deleteContent(Long id);
-    Content getContentById(Long id);
-    List<Content> getContentsByDateRange(LocalDateTime start, LocalDateTime end);
-    List<Content> getRecentlyModifiedContent(LocalDateTime since);
 }

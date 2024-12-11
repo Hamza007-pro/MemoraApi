@@ -1,5 +1,6 @@
 package com.app.Memora.card.services;
 
+import com.app.Memora.card.dtos.CardReadDTO;
 import com.app.Memora.card.entities.Card;
 
 import java.util.List;
@@ -11,4 +12,5 @@ public interface CardService {
     Card updateCard(Long id, Card card);
     void deleteCard(Long id);
     Optional<Card> getCardById(Long id);
+    CardReadDTO convertToReadDTO(Card card);
 }

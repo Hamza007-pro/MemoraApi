@@ -1,5 +1,6 @@
 package com.app.Memora.answer.services;
 
+import com.app.Memora.answer.dtos.AnswerDTO;
 import com.app.Memora.answer.entities.Answer;
 
 import java.util.List;
@@ -11,4 +12,5 @@ public interface AnswerService {
     List<Answer> getAllAnswers();
     Answer updateAnswer(Long id, Answer answerDetails);
     void deleteAnswer(Long id);
+    AnswerDTO convertToAnswerDTO(Answer answer);
 }

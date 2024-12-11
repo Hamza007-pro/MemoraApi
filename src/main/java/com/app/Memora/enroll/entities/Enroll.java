@@ -2,7 +2,7 @@ package com.app.Memora.enroll.entities;
 
 import com.app.Memora.authentication.entities.User;
 import com.app.Memora.deck.entities.Deck;
-import com.app.Memora.progressTraking.entities.ProgressDeck;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -28,6 +28,6 @@ public class Enroll {
     @JoinColumn(name = "deck_id")
     private Deck deck;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private ProgressDeck progressDeck;
+//    @OneToOne(cascade = CascadeType.ALL)
+//    private ProgressDeck progressDeck;
 }

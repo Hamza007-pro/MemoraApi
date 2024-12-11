@@ -3,11 +3,10 @@ package com.app.Memora.deck.dtos;
 import lombok.Data;
 
 @Data
-public class DeckDto {
-    private Long id;
+public class DeckCreationDTO {
     private String name;
     private String description;
+    private String image;
     private boolean isPublic;
-    private String createdBy;
-    private String storeName;
+    private Long storeId;
 }

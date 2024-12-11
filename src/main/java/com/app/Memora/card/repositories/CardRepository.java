@@ -12,4 +12,7 @@ import java.util.List;
 
 @Repository
 public interface CardRepository extends JpaRepository<Card, Long> {
+
+    @Query("SELECT c FROM Card c JOIN c.deck d WHERE d.createdBy.id = :userId")
+    List<Card> findDueCardsByUserId(@Param("userId") Long userId);
 }

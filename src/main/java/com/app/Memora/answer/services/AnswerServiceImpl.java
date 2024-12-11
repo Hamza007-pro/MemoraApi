@@ -1,5 +1,6 @@
 package com.app.Memora.answer.services;
 
+import com.app.Memora.answer.dtos.AnswerDTO;
 import com.app.Memora.answer.entities.Answer;
 import com.app.Memora.answer.repositories.AnswerRepository;
 import com.app.Memora.authentication.services.UserService;
@@ -47,6 +48,14 @@ public class AnswerServiceImpl implements AnswerService {
     @Override
     public void deleteAnswer(Long id) {
         answerRepository.deleteById(id);
+    }
+
+    @Override
+    public AnswerDTO convertToAnswerDTO(Answer answer) {
+        AnswerDTO answerDTO = new AnswerDTO();
+        answerDTO.setId(answer.getId());
+        answerDTO.setContent(answer.getContent());
+        return answerDTO;
     }
     // Other methods implementation...
 }

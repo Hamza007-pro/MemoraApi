@@ -3,6 +3,9 @@ package com.app.Memora.content.controllers;
 import com.app.Memora.answer.entities.Answer;
 import com.app.Memora.answer.services.AnswerService;
 import com.app.Memora.authentication.services.UserService;
+import com.app.Memora.content.dtos.ContentCreationDTO;
+import com.app.Memora.content.dtos.ContentEditDTO;
+import com.app.Memora.content.dtos.ContentReadDTO;
 import com.app.Memora.content.entities.Content;
 import com.app.Memora.content.services.ContentService;
 import com.app.Memora.question.entities.Question;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/contents")
@@ -33,35 +37,38 @@ public class ContentController {
     private AnswerService answerService;
 
     @PostMapping
-    public Content createContent(@RequestBody Content content, @PathParam("questionId") Long questionId , @PathParam("answerId") Long answerId) {
-        Question question = questionService.getQuestionById(questionId).orElseThrow();
-        Answer answer = answerService.getAnswerById(answerId).orElseThrow();
-        content.setQuestion(question);
-        content.setAnswer(answer);
-        return contentService.saveContent(content);
+    public ContentReadDTO createContent(@RequestBody ContentCreationDTO contentCreationDTO) {
+        Content content = new Content();
+        content.setImage(contentCreationDTO.getImage());
+        content.setQuestion(questionService.getQuestionById(contentCreationDTO.getQuestionId()).orElseThrow());
+        content.setAnswer(answerService.getAnswerById(contentCreationDTO.getAnswerId()).orElseThrow());
+        Content savedContent = contentService.saveContent(content);
+        return contentService.convertToReadDTO(savedContent);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Content> getContentById(@PathVariable Long id ) {
+    public ResponseEntity<ContentReadDTO> getContentById(@PathVariable Long id) {
         return contentService.getContentById(id)
+                .map(contentService::convertToReadDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    public List<Content> getAllContents() {
-        return contentService.getAllContents();
+    public List<ContentReadDTO> getAllContents() {
+        return contentService.getAllContents().stream()
+                .map(contentService::convertToReadDTO)
+                .collect(Collectors.toList());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Content> updateContent(@PathVariable Long id,
-                                                 @RequestBody Content contentDetails,
-                                                 @PathParam("questionId") Long questionId ,
-                                                 @PathParam("answerId") Long answerId) {
-
-        contentDetails.setQuestion(questionService.getQuestionById(questionId).orElseThrow());
-        contentDetails.setAnswer(answerService.getAnswerById(answerId).orElseThrow());
-        return ResponseEntity.ok(contentService.updateContent(id, contentDetails));
+    public ResponseEntity<ContentReadDTO> updateContent(@PathVariable Long id, @RequestBody ContentEditDTO contentEditDTO) {
+        Content content = contentService.getContentById(id).orElseThrow();
+        content.setImage(contentEditDTO.getImage());
+        content.setQuestion(questionService.getQuestionById(contentEditDTO.getQuestionId()).orElseThrow());
+        content.setAnswer(answerService.getAnswerById(contentEditDTO.getAnswerId()).orElseThrow());
+        Content updatedContent = contentService.updateContent(id, content);
+        return ResponseEntity.ok(contentService.convertToReadDTO(updatedContent));
     }
 
     @DeleteMapping("/{id}")

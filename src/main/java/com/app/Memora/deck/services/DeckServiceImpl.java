@@ -4,19 +4,21 @@ import com.app.Memora.authentication.entities.User;
 import com.app.Memora.authentication.services.UserService;
 import com.app.Memora.card.entities.Card;
 import com.app.Memora.card.repositories.CardRepository;
+import com.app.Memora.card.services.CardService;
+import com.app.Memora.deck.dtos.DeckReadDTO;
 import com.app.Memora.deck.entities.Deck;
 import com.app.Memora.deck.repositories.DeckRepository;
 import com.app.Memora.exceptions.ResourceNotFoundException;
 import com.app.Memora.store.entities.Store;
 import com.app.Memora.store.repositories.StoreRepository;
+import com.app.Memora.store.services.StoreService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 @Slf4j
@@ -24,30 +26,28 @@ import java.util.Optional;
 public class DeckServiceImpl implements DeckService {
     private final DeckRepository deckRepository;
     private final UserService userService;
-    private final CardRepository cardRepository;
     private final StoreRepository storeRepository;
 
+
     @Override
-    @Transactional
-    public Deck createDeck(Deck deck) {
+    public Deck createDeck(Long storeId, Deck deck) {
         log.info("Creating new deck: {}", deck.getName());
-        Long id = 1L;
-        Store store = storeRepository.findById(id)
+        Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Store not found"));
-        User user = userService.getCurrentUser();
-        deck.setCreatedBy(user);
         deck.setStore(store);
-
-        // Ensure related entities are initialized
-        Hibernate.initialize(deck.getStore());
-        Hibernate.initialize(deck.getCreatedBy());
-
+        deck.setCreatedBy(userService.getCurrentUser());
         return deckRepository.save(deck);
     }
 
     @Override
-    public Deck updateDeck(Deck deck) {
-        return null;
+    public Deck updateDeck(Long id, Deck deck) {
+        Deck deck1 = deckRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Deck not found"));
+        deck1.setName(deck.getName());
+        deck1.setDescription(deck.getDescription());
+        deck1.setImage(deck.getImage());
+        deck1.setPublic(deck.isPublic());
+        return deckRepository.save(deck1);
     }
 
     @Override
@@ -56,20 +56,19 @@ public class DeckServiceImpl implements DeckService {
     }
 
     @Override
-    public List<Deck> getAllPublicDecks() {
+    public List<Deck> getAllDecks() {
+        log.info("Fetching all decks");
+        return deckRepository.findAll();
+    }
+
+    @Override
+    public List<Deck> getUserDecks(Long userId) {
         return null;
     }
 
     @Override
-    public List<Deck> getUserDecks() {
-        User currentUser = userService.getCurrentUser();
-        System.out.println("Current user: " + currentUser.getId());
-        return deckRepository.findUserDecks(currentUser.getId());
-    }
-
-    @Override
-    public Deck getDeckById(Long id) {
-        return null;
+    public Optional<Deck> getDeckById(Long id) {
+        return Optional.empty();
     }
 
     @Override
@@ -77,15 +76,8 @@ public class DeckServiceImpl implements DeckService {
         return null;
     }
 
-
     @Override
-    @Transactional
-    public void addCardToDeck(Long deckId, Card card) {
-        Deck deck = getDeckById(deckId);
-        card.setDeck(deck);
-        deck.getCards().add(card);
-        cardRepository.save(card);
+    public DeckReadDTO convertToReadDTO(Deck deck) {
+        return null;
     }
-
-    // Other methods implementation...
 }

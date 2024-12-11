@@ -2,6 +2,7 @@ package com.app.Memora.question.services;
 
 import com.app.Memora.authentication.services.UserService;
 import com.app.Memora.exceptions.ResourceNotFoundException;
+import com.app.Memora.question.dtos.QuestionDTO;
 import com.app.Memora.question.entities.Question;
 import com.app.Memora.question.repositories.QuestionRepository;
 import jakarta.transaction.Transactional;
@@ -45,6 +46,14 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public void deleteQuestion(Long id) {
         questionRepository.deleteById(id);
+    }
+
+    @Override
+    public QuestionDTO convertToQuestionDTO(Question question) {
+        QuestionDTO questionDTO = new QuestionDTO();
+        questionDTO.setId(question.getId());
+        questionDTO.setContent(question.getContent());
+        return questionDTO;
     }
     // Other methods implementation...
 }

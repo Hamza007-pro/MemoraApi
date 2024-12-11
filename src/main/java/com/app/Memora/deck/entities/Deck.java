@@ -42,7 +42,7 @@ public class Deck {
     private User createdBy;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "store_id", nullable = false)
+    @JoinColumn(name = "store_id")
     private Store store;
 
     @OneToMany(mappedBy = "deck", fetch = FetchType.LAZY)

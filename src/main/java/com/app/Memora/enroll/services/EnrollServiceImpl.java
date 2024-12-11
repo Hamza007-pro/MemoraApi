@@ -7,7 +7,7 @@ import com.app.Memora.deck.repositories.DeckRepository;
 import com.app.Memora.enroll.entities.Enroll;
 import com.app.Memora.enroll.repositories.EnrollRepository;
 import com.app.Memora.exceptions.ResourceNotFoundException;
-import com.app.Memora.progressTraking.entities.ProgressDeck;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,10 +46,10 @@ public class EnrollServiceImpl implements EnrollService {
         enroll.setStartingDate(LocalDate.now());
         enroll.setProgressPercentage(0);
 
-        ProgressDeck progressDeck = new ProgressDeck();
-        progressDeck.setScore(0);
-        progressDeck.setLastReviewDate(LocalDateTime.now());
-        enroll.setProgressDeck(progressDeck);
+//        ProgressDeck progressDeck = new ProgressDeck();
+//        progressDeck.setScore(0);
+//        progressDeck.setLastReviewDate(LocalDateTime.now());
+//        enroll.setProgressDeck(progressDeck);
 
         return enrollRepository.save(enroll);
     }

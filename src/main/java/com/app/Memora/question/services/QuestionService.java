@@ -1,5 +1,6 @@
 package com.app.Memora.question.services;
 
+import com.app.Memora.question.dtos.QuestionDTO;
 import com.app.Memora.question.entities.Question;
 
 import java.util.List;
@@ -11,4 +12,5 @@ public interface QuestionService {
     List<Question> getAllQuestions();
     Question updateQuestion(Long id, Question questionDetails);
     void deleteQuestion(Long id);
+    QuestionDTO convertToQuestionDTO(Question question);
 }

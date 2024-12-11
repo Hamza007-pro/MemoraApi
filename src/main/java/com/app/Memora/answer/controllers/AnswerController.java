@@ -1,5 +1,6 @@
 package com.app.Memora.answer.controllers;
 
+import com.app.Memora.answer.dtos.AnswerDTO;
 import com.app.Memora.answer.entities.Answer;
 import com.app.Memora.answer.services.AnswerService;
 import com.app.Memora.authentication.services.UserService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/answers")
@@ -23,25 +25,43 @@ public class AnswerController {
     private AnswerService answerService;
 
     @PostMapping
-    public Answer createAnswer(@RequestBody Answer answer) {
-        return answerService.saveAnswer(answer);
+    public AnswerDTO createAnswer(@RequestBody AnswerDTO answerDTO) {
+        Answer answer = new Answer();
+        answer.setContent(answerDTO.getContent());
+        Answer savedAnswer = answerService.saveAnswer(answer);
+        answerDTO.setId(savedAnswer.getId());
+        return answerDTO;
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Answer> getAnswerById(@PathVariable Long id) {
+    public ResponseEntity<AnswerDTO> getAnswerById(@PathVariable Long id) {
         return answerService.getAnswerById(id)
-                .map(ResponseEntity::ok)
+                .map(answer -> {
+                    AnswerDTO answerDTO = new AnswerDTO();
+                    answerDTO.setId(answer.getId());
+                    answerDTO.setContent(answer.getContent());
+                    return ResponseEntity.ok(answerDTO);
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    public List<Answer> getAllAnswers() {
-        return answerService.getAllAnswers();
+    public List<AnswerDTO> getAllAnswers() {
+        return answerService.getAllAnswers().stream().map(answer -> {
+            AnswerDTO answerDTO = new AnswerDTO();
+            answerDTO.setId(answer.getId());
+            answerDTO.setContent(answer.getContent());
+            return answerDTO;
+        }).collect(Collectors.toList());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Answer> updateAnswer(@PathVariable Long id, @RequestBody Answer answerDetails) {
-        return ResponseEntity.ok(answerService.updateAnswer(id, answerDetails));
+    public ResponseEntity<AnswerDTO> updateAnswer(@PathVariable Long id, @RequestBody AnswerDTO answerDTO) {
+        Answer answer = new Answer();
+        answer.setContent(answerDTO.getContent());
+        Answer updatedAnswer = answerService.updateAnswer(id, answer);
+        answerDTO.setId(updatedAnswer.getId());
+        return ResponseEntity.ok(answerDTO);
     }
 
     @DeleteMapping("/{id}")

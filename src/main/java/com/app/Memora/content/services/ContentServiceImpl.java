@@ -1,9 +1,14 @@
 package com.app.Memora.content.services;
 
+import com.app.Memora.answer.services.AnswerService;
 import com.app.Memora.authentication.services.UserService;
+import com.app.Memora.content.dtos.ContentReadDTO;
 import com.app.Memora.content.entities.Content;
 import com.app.Memora.content.repositories.ContentRepository;
 import com.app.Memora.exceptions.ResourceNotFoundException;
+import com.app.Memora.question.dtos.QuestionDTO;
+import com.app.Memora.question.entities.Question;
+import com.app.Memora.question.services.QuestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +26,10 @@ import java.util.Optional;
 public class ContentServiceImpl implements ContentService {
     @Autowired
     private ContentRepository contentRepository;
+    @Autowired
+    private QuestionService questionService;
+    @Autowired
+    private AnswerService answerService;
 
     @Override
     public Content saveContent(Content content) {
@@ -51,5 +60,19 @@ public class ContentServiceImpl implements ContentService {
     public void deleteContent(Long id) {
         contentRepository.deleteById(id);
     }
+
+    @Override
+    public ContentReadDTO convertToReadDTO(Content content) {
+        ContentReadDTO contentReadDTO = new ContentReadDTO();
+        contentReadDTO.setId(content.getId());
+        contentReadDTO.setImage(content.getImage());
+        contentReadDTO.setDateCreated(content.getDateCreated());
+        contentReadDTO.setDateModified(content.getDateModified());
+        contentReadDTO.setQuestion(questionService.convertToQuestionDTO(content.getQuestion()));
+        contentReadDTO.setAnswer(answerService.convertToAnswerDTO(content.getAnswer()));
+        return contentReadDTO;
+    }
+
+
     // Other methods implementation...
 }

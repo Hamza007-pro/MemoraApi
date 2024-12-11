@@ -3,7 +3,7 @@ package com.app.Memora.card.entities;
 import com.app.Memora.content.entities.Content;
 import com.app.Memora.deck.entities.Deck;
 import com.app.Memora.enums.DifficultyLevel;
-import com.app.Memora.progressTraking.entities.ProgressCard;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -29,6 +29,6 @@ public class Card {
     @JoinColumn(name = "deck_id")
     private Deck deck;
 
-    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL)
-    private List<ProgressCard> progressCards = new ArrayList<>();
+//    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL)
+//    private List<ProgressCard> progressCards = new ArrayList<>();
 }

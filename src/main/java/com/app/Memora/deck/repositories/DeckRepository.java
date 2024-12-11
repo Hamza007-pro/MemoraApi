@@ -9,6 +9,4 @@ import java.util.List;
 
 @Repository
 public interface DeckRepository extends JpaRepository<Deck, Long> {
-    @Query("SELECT d FROM Deck d JOIN FETCH d.store JOIN FETCH d.createdBy WHERE d.createdBy.id = :userId")
-    List<Deck> findUserDecks(@Param("userId") Long userId);
 }

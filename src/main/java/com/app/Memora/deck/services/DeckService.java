@@ -12,7 +12,7 @@ public interface DeckService {
     Deck updateDeck(Long id, Deck deck);
     void deleteDeck(Long id);
     List<Deck> getAllDecks();
-    List<Deck> getUserDecks(Long userId);
+    List<Deck> getUserDecks();
     Optional<Deck> getDeckById(Long id);
     List<Deck> searchDecks(String query);
     DeckReadDTO convertToReadDTO(Deck deck);

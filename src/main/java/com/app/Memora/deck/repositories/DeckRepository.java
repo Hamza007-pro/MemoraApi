@@ -9,4 +9,9 @@ import java.util.List;
 
 @Repository
 public interface DeckRepository extends JpaRepository<Deck, Long> {
+    @Query("SELECT d FROM Deck d WHERE d.createdBy.id = :userId")
+    List<Deck> findByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT d FROM Deck d WHERE LOWER(d.name) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(d.description) LIKE LOWER(CONCAT('%', :query, '%'))")
+    List<Deck> searchDecks(@Param("query") String query);
 }

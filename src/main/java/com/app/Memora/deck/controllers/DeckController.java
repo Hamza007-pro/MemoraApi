@@ -74,4 +74,18 @@ public class DeckController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/user")
+    public List<DeckReadDTO> getUserDecks(){
+        return deckService.getUserDecks().stream()
+                .map(deckService::convertToReadDTO)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/search/{query}")
+    public List<DeckReadDTO> searchDecks(@PathVariable String query){
+        return deckService.searchDecks(query).stream()
+                .map(deckService::convertToReadDTO)
+                .collect(Collectors.toList());
+    }
+
 }

@@ -1,23 +1,23 @@
 package com.app.Memora.deck.services;
 
-import com.app.Memora.authentication.entities.User;
+
 import com.app.Memora.authentication.services.UserService;
-import com.app.Memora.card.entities.Card;
-import com.app.Memora.card.repositories.CardRepository;
-import com.app.Memora.card.services.CardService;
+import com.app.Memora.card.dtos.CardReadDTO;
+import com.app.Memora.content.services.ContentService;
 import com.app.Memora.deck.dtos.DeckReadDTO;
 import com.app.Memora.deck.entities.Deck;
 import com.app.Memora.deck.repositories.DeckRepository;
 import com.app.Memora.exceptions.ResourceNotFoundException;
 import com.app.Memora.store.entities.Store;
 import com.app.Memora.store.repositories.StoreRepository;
-import com.app.Memora.store.services.StoreService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import com.app.Memora.categorie.entities.Category;
+import com.app.Memora.enroll.entities.Enroll;
 
 
 @Service
@@ -27,6 +27,7 @@ public class DeckServiceImpl implements DeckService {
     private final DeckRepository deckRepository;
     private final UserService userService;
     private final StoreRepository storeRepository;
+    private final ContentService contentService;
 
 
     @Override
@@ -62,22 +63,42 @@ public class DeckServiceImpl implements DeckService {
     }
 
     @Override
-    public List<Deck> getUserDecks(Long userId) {
-        return null;
+    public List<Deck> getUserDecks() {
+        log.info("Fetch User Decks");
+        return deckRepository.findByUserId(userService.getCurrentUser().getId());
     }
 
     @Override
     public Optional<Deck> getDeckById(Long id) {
-        return Optional.empty();
+        log.info("Get Deck by user");
+        return deckRepository.findById(id);
     }
 
     @Override
     public List<Deck> searchDecks(String query) {
-        return null;
+        log.info("Get deck that conatin keyword");
+        return deckRepository.searchDecks(query);
     }
 
     @Override
     public DeckReadDTO convertToReadDTO(Deck deck) {
-        return null;
+        var dto = new DeckReadDTO();
+        dto.setId(deck.getId());
+        dto.setName(deck.getName());
+        dto.setDescription(deck.getDescription());
+        dto.setImage(deck.getImage());
+        dto.setPublic(deck.isPublic());
+        dto.setCreatedAt(deck.getCreatedAt());
+        dto.setUpdatedAt(deck.getUpdatedAt());
+        dto.setCards(deck.getCards().stream().map(card -> {
+            var cardDto = new CardReadDTO();
+            cardDto.setId(card.getId());
+            cardDto.setDifficultyLevel(card.getDifficultyLevel());
+            cardDto.setContent(contentService.convertToReadDTO(card.getContent()));
+            return cardDto;
+        }).collect(Collectors.toList()));
+        dto.setCategoryIds(deck.getCategories().stream().map(Category::getId).collect(Collectors.toList()));
+        dto.setEnrollmentIds(deck.getEnrollments().stream().map(Enroll::getId).collect(Collectors.toList()));
+        return dto;
     }
 }

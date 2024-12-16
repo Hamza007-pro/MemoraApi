@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 public class CardCreationDTO {
-    private Long deckId;
     private DifficultyLevel difficultyLevel;
     private Long contentId;
 }

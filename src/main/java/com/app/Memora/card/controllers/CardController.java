@@ -28,4 +28,35 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CardController {
 
+    @Autowired
+    private CardService cardService;
+    @Autowired
+    private ContentService contentService;
+
+
+    @GetMapping
+    public List<CardReadDTO> getAllCards() {
+        return cardService.getAllCards().stream()
+                .map(cardService::convertToReadDTO)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<CardReadDTO> getCardById(@PathVariable Long id) {
+        return cardService.getCardById(id)
+                .map(cardService::convertToReadDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/{deckId}")
+    public CardReadDTO createCard(@PathVariable Long deckId, @Valid @RequestBody CardCreationDTO cardCreationDTO) {
+        Card card = new Card();
+        card.setContent(contentService.getContentById(cardCreationDTO.getContentId())
+                .orElseThrow(() -> new RuntimeException("Content not found")));
+        card.setDifficultyLevel(DifficultyLevel.valueOf(String.valueOf(cardCreationDTO.getDifficultyLevel())));
+        Card savedCard = cardService.createCard(card, deckId);
+        return cardService.convertToReadDTO(savedCard);
+    }
+
 }

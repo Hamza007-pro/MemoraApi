@@ -12,6 +12,5 @@ public class CardReadDTO {
     private Long id;
     private DifficultyLevel difficultyLevel;
     private ContentReadDTO content;
-    private DeckReadDTO deck;
     private List<Long> progressCardIds;
 }

@@ -4,9 +4,11 @@ import com.app.Memora.card.dtos.CardReadDTO;
 import com.app.Memora.card.entities.Card;
 import com.app.Memora.card.repositories.CardRepository;
 import com.app.Memora.content.services.ContentService;
+import com.app.Memora.deck.entities.Deck;
 import com.app.Memora.deck.services.DeckService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +21,23 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CardServiceImpl implements CardService {
 
+    private final CardRepository cardRepository;
+    private final DeckService deckService;
+
+    @Autowired
+    private ContentService contentService;
+
     @Override
     public List<Card> getAllCards() {
-        return null;
+        return cardRepository.findAll();
     }
 
     @Override
     public Card createCard(Card card, Long deckId) {
-        return null;
+        Deck deck = deckService.getDeckById(deckId)
+                .orElseThrow(() -> new RuntimeException("Deck not found"));
+        card.setDeck(deck);
+        return cardRepository.save(card);
     }
 
     @Override
@@ -46,6 +57,10 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public CardReadDTO convertToReadDTO(Card card) {
-        return null;
+        var dto = new CardReadDTO();
+        dto.setId(card.getId());
+        dto.setContent(contentService.convertToReadDTO(card.getContent()));
+        dto.setDifficultyLevel(card.getDifficultyLevel());
+        return dto;
     }
 }

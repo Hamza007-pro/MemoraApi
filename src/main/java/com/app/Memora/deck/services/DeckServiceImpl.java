@@ -3,6 +3,8 @@ package com.app.Memora.deck.services;
 
 import com.app.Memora.authentication.services.UserService;
 import com.app.Memora.card.dtos.CardReadDTO;
+import com.app.Memora.card.entities.Card;
+import com.app.Memora.card.repositories.CardRepository;
 import com.app.Memora.content.services.ContentService;
 import com.app.Memora.deck.dtos.DeckReadDTO;
 import com.app.Memora.deck.entities.Deck;
@@ -28,6 +30,7 @@ public class DeckServiceImpl implements DeckService {
     private final UserService userService;
     private final StoreRepository storeRepository;
     private final ContentService contentService;
+    private CardRepository cardRepository;
 
 
     @Override

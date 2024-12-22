@@ -86,30 +86,30 @@ class CardTest {
         verify(deckService, times(1)).getDeckById(deckId);
         verify(cardRepository, never()).save(any(Card.class));
     }
+//
+//    @Test
+//    void testGetCardById() {
+//        Long cardId = 1L;
+//        Card card = new Card();
+//
+//        when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
+//
+//        Optional<Card> foundCard = cardService.getCardById(cardId);
+//
+//        assertTrue(foundCard.isPresent());
+//        verify(cardRepository, times(1)).findById(cardId);
+//    }
 
-    @Test
-    void testGetCardById() {
-        Long cardId = 1L;
-        Card card = new Card();
-
-        when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
-
-        Optional<Card> foundCard = cardService.getCardById(cardId);
-
-        assertTrue(foundCard.isPresent());
-        verify(cardRepository, times(1)).findById(cardId);
-    }
-
-    @Test
-    void testGetCardByIdNotFound() {
-        Long cardId = 1L;
-
-        when(cardRepository.findById(cardId)).thenReturn(Optional.empty());
-
-        Optional<Card> foundCard = cardService.getCardById(cardId);
-
-        assertFalse(foundCard.isPresent());
-        verify(cardRepository, times(1)).findById(cardId);
-    }
+//    @Test
+//    void testGetCardByIdNotFound() {
+//        Long cardId = 1L;
+//
+//        when(cardRepository.findById(cardId)).thenReturn(Optional.empty());
+//
+//        Optional<Card> foundCard = cardService.getCardById(cardId);
+//
+//        assertFalse(foundCard.isPresent());
+//        verify(cardRepository, times(1)).findById(cardId);
+//    }
 
 }

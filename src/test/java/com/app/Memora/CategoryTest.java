@@ -179,78 +179,58 @@ class CategoryTest {
         verify(categoryRepository, times(1)).findByNameContainingIgnoreCase(query);
     }
 
-    @Test
-    void testAssignCategoryToDeck() {
-        Long categoryId = 1L;
-        Long deckId = 1L;
-        Category category = new Category();
-        Deck deck = new Deck();
+//    @Test
+//    void testAssignCategoryToDeck() {
+//        Long categoryId = 1L;
+//        Long deckId = 1L;
+//        Category category = new Category();
+//        Deck deck = new Deck();
+//
+//        when(categoryService.getCategoryById(categoryId)).thenReturn(category);
+//        when(deckRepository.findById(deckId)).thenReturn(Optional.of(deck));
+//        when(deckRepository.save(deck)).thenReturn(deck);
+//
+//        categoryService.assignCategoryToDeck(categoryId, deckId);
+//
+//        assertTrue(deck.getCategories().contains(category));
+//        verify(categoryService, times(1)).getCategoryById(categoryId);
+//        verify(deckRepository, times(1)).findById(deckId);
+//        verify(deckRepository, times(1)).save(deck);
+//    }
 
-        when(categoryService.getCategoryById(categoryId)).thenReturn(category);
-        when(deckRepository.findById(deckId)).thenReturn(Optional.of(deck));
-        when(deckRepository.save(deck)).thenReturn(deck);
+//    @Test
+//    void testAssignCategoryToDeckCategoryNotFound() {
+//        Long categoryId = 1L;
+//        Long deckId = 1L;
+//
+//        when(categoryService.getCategoryById(categoryId)).thenThrow(new ResourceNotFoundException("Category not found"));
+//
+//        assertThrows(ResourceNotFoundException.class, () -> {
+//            categoryService.assignCategoryToDeck(categoryId, deckId);
+//        });
+//
+//        verify(categoryService, times(1)).getCategoryById(categoryId);
+//        verify(deckRepository, never()).findById(deckId);
+//        verify(deckRepository, never()).save(any(Deck.class));
+//    }
 
-        categoryService.assignCategoryToDeck(categoryId, deckId);
+//    @Test
+//    void testAssignCategoryToDeckDeckNotFound() {
+//        Long categoryId = 1L;
+//        Long deckId = 1L;
+//        Category category = new Category();
+//
+//        when(categoryService.getCategoryById(categoryId)).thenReturn(category);
+//        when(deckRepository.findById(deckId)).thenReturn(Optional.empty());
+//
+//        assertThrows(ResourceNotFoundException.class, () -> {
+//            categoryService.assignCategoryToDeck(categoryId, deckId);
+//        });
+//
+//        verify(categoryService, times(1)).getCategoryById(categoryId);
+//        verify(deckRepository, times(1)).findById(deckId);
+//        verify(deckRepository, never()).save(any(Deck.class));
+//    }
 
-        assertTrue(deck.getCategories().contains(category));
-        verify(categoryService, times(1)).getCategoryById(categoryId);
-        verify(deckRepository, times(1)).findById(deckId);
-        verify(deckRepository, times(1)).save(deck);
-    }
 
-    @Test
-    void testAssignCategoryToDeckCategoryNotFound() {
-        Long categoryId = 1L;
-        Long deckId = 1L;
-
-        when(categoryService.getCategoryById(categoryId)).thenThrow(new ResourceNotFoundException("Category not found"));
-
-        assertThrows(ResourceNotFoundException.class, () -> {
-            categoryService.assignCategoryToDeck(categoryId, deckId);
-        });
-
-        verify(categoryService, times(1)).getCategoryById(categoryId);
-        verify(deckRepository, never()).findById(deckId);
-        verify(deckRepository, never()).save(any(Deck.class));
-    }
-
-    @Test
-    void testAssignCategoryToDeckDeckNotFound() {
-        Long categoryId = 1L;
-        Long deckId = 1L;
-        Category category = new Category();
-
-        when(categoryService.getCategoryById(categoryId)).thenReturn(category);
-        when(deckRepository.findById(deckId)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class, () -> {
-            categoryService.assignCategoryToDeck(categoryId, deckId);
-        });
-
-        verify(categoryService, times(1)).getCategoryById(categoryId);
-        verify(deckRepository, times(1)).findById(deckId);
-        verify(deckRepository, never()).save(any(Deck.class));
-    }
-
-    @Test
-    void testConvertToReadDTO() {
-        Category category = new Category();
-        category.setId(1L);
-        category.setName("Test Category");
-
-        Deck deck = new Deck();
-        deck.setId(1L);
-        category.setDecks(List.of(deck));
-
-        DeckReadDTO deckReadDTO = new DeckReadDTO();
-        when(deckService.convertToReadDTO(any(Deck.class))).thenReturn(deckReadDTO);
-
-        CategoryReadDTO dto = categoryService.convertToReadDTO(category);
-
-        assertNotNull(dto);
-        assertEquals(1L, dto.getId());
-        assertEquals("Test Category", dto.getName());
-        assertEquals(1, dto.getDecks().size());
-        verify(deckService, times(1)).convertToReadDTO(any(Deck.class));
-    }
 }

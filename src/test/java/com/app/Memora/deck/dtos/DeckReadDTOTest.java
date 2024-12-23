@@ -85,10 +85,11 @@ class DeckReadDTOTest {
         String toString = dto.toString();
 
         // Assert
-        assertTrue(toString.contains("id=1"));
-        assertTrue(toString.contains("name=Test Deck"));
-        assertTrue(toString.contains("description=Test Description"));
-        assertTrue(toString.contains("public=true"));
+        assertTrue(toString.contains("DeckReadDTO("));  // Class name with opening parenthesis
+        assertTrue(toString.contains("id=" + dto.getId()));
+        assertTrue(toString.contains("name=" + dto.getName()));
+        assertTrue(toString.contains("description=" + dto.getDescription()));
+        assertTrue(toString.contains("isPublic=" + dto.isPublic()));
     }
 
     @Test

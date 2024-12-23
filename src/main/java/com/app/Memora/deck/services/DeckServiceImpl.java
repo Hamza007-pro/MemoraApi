@@ -56,7 +56,12 @@ public class DeckServiceImpl implements DeckService {
 
     @Override
     public void deleteDeck(Long id) {
+        // First check if the deck exists
+        Deck deck = deckRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Deck not found with id: " + id));
 
+        // Delete the deck
+        deckRepository.delete(deck);
     }
 
     @Override

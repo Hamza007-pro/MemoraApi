@@ -10,6 +10,7 @@ import com.app.Memora.deck.dtos.DeckReadDTO;
 import com.app.Memora.deck.entities.Deck;
 import com.app.Memora.deck.services.DeckService;
 import com.app.Memora.enroll.services.EnrollService;
+import com.app.Memora.exceptions.ResourceNotFoundException;
 import com.app.Memora.store.entities.Store;
 import com.app.Memora.store.services.StoreService;
 import com.app.Memora.util.ApiResponse;
@@ -59,19 +60,26 @@ public class DeckController {
 
     @PutMapping("/{id}")
     public ResponseEntity<DeckReadDTO> updateDeck(@PathVariable Long id, @RequestBody DeckEditDTO deckEditDTO) {
-        Deck deck = deckService.getDeckById(id).orElseThrow();
-        deck.setName(deckEditDTO.getName());
-        deck.setDescription(deckEditDTO.getDescription());
-        deck.setImage(deckEditDTO.getImage());
-        deck.setPublic(deckEditDTO.isPublic());
-        Deck updatedDeck = deckService.updateDeck(id, deck);
-        return ResponseEntity.ok(deckService.convertToReadDTO(updatedDeck));
+        return deckService.getDeckById(id)
+                .map(deck -> {
+                    deck.setName(deckEditDTO.getName());
+                    deck.setDescription(deckEditDTO.getDescription());
+                    deck.setImage(deckEditDTO.getImage());
+                    deck.setPublic(deckEditDTO.isPublic());
+                    Deck updatedDeck = deckService.updateDeck(id, deck);
+                    return ResponseEntity.ok(deckService.convertToReadDTO(updatedDeck));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDeck(@PathVariable Long id) {
-        deckService.deleteDeck(id);
-        return ResponseEntity.noContent().build();
+        try {
+            deckService.deleteDeck(id);
+            return ResponseEntity.noContent().build();
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/user")

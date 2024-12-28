@@ -6,6 +6,7 @@ import com.app.Memora.card.repositories.CardRepository;
 import com.app.Memora.content.services.ContentService;
 import com.app.Memora.deck.entities.Deck;
 import com.app.Memora.deck.services.DeckService;
+import com.app.Memora.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,14 +43,24 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public Card updateCard(Long id, Card card) {
-        return null;
+        return cardRepository.findById(id)
+                .map(existingCard -> {
+                    existingCard.setDifficultyLevel(card.getDifficultyLevel());
+                    existingCard.setContent(card.getContent());
+                    existingCard.setDeck(card.getDeck());
+                    // Update other fields as necessary
+                    return cardRepository.save(existingCard);
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("Card not found"));
     }
 
     @Override
     public void deleteCard(Long id) {
-
+        if (!cardRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Card not found");
+        }
+        cardRepository.deleteById(id);
     }
-
     @Override
     public Optional<Card> getCardById(Long id) {
         return Optional.empty();

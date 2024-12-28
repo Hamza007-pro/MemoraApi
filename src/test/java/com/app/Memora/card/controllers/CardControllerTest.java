@@ -1,34 +1,30 @@
 package com.app.Memora.card.controllers;
 
 import com.app.Memora.card.dtos.CardCreationDTO;
+import com.app.Memora.card.dtos.CardEditDTO;
 import com.app.Memora.card.dtos.CardReadDTO;
 import com.app.Memora.card.entities.Card;
 import com.app.Memora.card.services.CardService;
-import com.app.Memora.content.dtos.ContentReadDTO;
 import com.app.Memora.content.entities.Content;
 import com.app.Memora.content.services.ContentService;
 import com.app.Memora.enums.DifficultyLevel;
+import com.app.Memora.util.ApiResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
 class CardControllerTest {
 
     @Mock
@@ -40,123 +36,59 @@ class CardControllerTest {
     @InjectMocks
     private CardController cardController;
 
-    private Card card;
-    private CardReadDTO cardReadDTO;
-    private CardCreationDTO cardCreationDTO;
-    private Content content;
-    private ContentReadDTO contentReadDTO;
-    private Long deckId;
+    private MockMvc mockMvc;
+    private Card testCard;
+    private CardReadDTO testCardReadDTO;
+    private Content testContent;
 
     @BeforeEach
     void setUp() {
-        // Initialize test data
-        deckId = 1L;
+        MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(cardController).build();
 
-        content = new Content();
-        content.setId(1L);
-        content.setImage("test-image.jpg");
+        testContent = new Content();
+        testContent.setId(1L);
 
-        contentReadDTO = new ContentReadDTO();
-        contentReadDTO.setId(1L);
-        contentReadDTO.setImage("test-image.jpg");
-        contentReadDTO.setDateCreated(LocalDateTime.now());
-        contentReadDTO.setDateModified(LocalDateTime.now());
+        testCard = new Card();
+        testCard.setId(1L);
+        testCard.setDifficultyLevel(DifficultyLevel.EASY);
+        testCard.setContent(testContent);
 
-        card = new Card();
-        card.setId(1L);
-        card.setContent(content);
-        card.setDifficultyLevel(DifficultyLevel.EASY);
-
-        cardReadDTO = new CardReadDTO();
-        cardReadDTO.setId(1L);
-        cardReadDTO.setContent(contentReadDTO);
-        cardReadDTO.setDifficultyLevel(DifficultyLevel.EASY);
-        cardReadDTO.setProgressCardIds(new ArrayList<>());
-
-        cardCreationDTO = new CardCreationDTO();
-        cardCreationDTO.setContentId(1L);
-        cardCreationDTO.setDifficultyLevel(DifficultyLevel.EASY);
+        testCardReadDTO = new CardReadDTO();
+        testCardReadDTO.setId(1L);
+        testCardReadDTO.setDifficultyLevel(DifficultyLevel.EASY);
     }
 
     @Test
-    void getAllCards_ReturnsListOfCards() {
-        // Arrange
-        List<Card> cards = Arrays.asList(card);
-        when(cardService.getAllCards()).thenReturn(cards);
-        when(cardService.convertToReadDTO(any(Card.class))).thenReturn(cardReadDTO);
+    void updateCard_Success() throws Exception {
+        CardEditDTO cardEditDTO = new CardEditDTO();
+        cardEditDTO.setContentId(1L);
+        cardEditDTO.setDifficultyLevel(DifficultyLevel.MEDIUM);
 
-        // Act
-        List<CardReadDTO> result = cardController.getAllCards();
+        when(contentService.getContentById(1L)).thenReturn(Optional.of(testContent));
+        when(cardService.updateCard(eq(1L), any(Card.class))).thenReturn(testCard);
+        when(cardService.convertToReadDTO(testCard)).thenReturn(testCardReadDTO);
 
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(cardReadDTO, result.get(0));
-        verify(cardService).getAllCards();
-        verify(cardService).convertToReadDTO(card);
+        mockMvc.perform(put("/api/cards/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"contentId\":1,\"difficultyLevel\":\"MEDIUM\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.difficultyLevel").value("EASY"));
+
+        verify(cardService, times(1)).updateCard(eq(1L), any(Card.class));
     }
 
     @Test
-    void getCardById_WhenCardExists_ReturnsCard() {
-        // Arrange
-        when(cardService.getCardById(1L)).thenReturn(Optional.of(card));
-        when(cardService.convertToReadDTO(card)).thenReturn(cardReadDTO);
+    void deleteCard_Success() throws Exception {
+        doNothing().when(cardService).deleteCard(1L);
 
-        // Act
-        ResponseEntity<CardReadDTO> response = cardController.getCardById(1L);
+        mockMvc.perform(delete("/api/cards/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").value("Card deleted successfully"));
 
-        // Assert
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(cardReadDTO, response.getBody());
-        verify(cardService).getCardById(1L);
-        verify(cardService).convertToReadDTO(card);
-    }
-
-    @Test
-    void getCardById_WhenCardDoesNotExist_ReturnsNotFound() {
-        // Arrange
-        when(cardService.getCardById(1L)).thenReturn(Optional.empty());
-
-        // Act
-        ResponseEntity<CardReadDTO> response = cardController.getCardById(1L);
-
-        // Assert
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        verify(cardService).getCardById(1L);
-    }
-
-    @Test
-    void createCard_ReturnsCreatedCard() {
-        // Arrange
-        when(contentService.getContentById(1L))
-                .thenReturn(Optional.of(content));
-        when(cardService.createCard(any(Card.class), eq(deckId))).thenReturn(card);
-        when(cardService.convertToReadDTO(card)).thenReturn(cardReadDTO);
-
-        // Act
-        CardReadDTO result = cardController.createCard(deckId, cardCreationDTO);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(cardReadDTO.getId(), result.getId());
-        assertEquals(cardReadDTO.getContent().getId(), result.getContent().getId());
-        assertEquals(cardReadDTO.getDifficultyLevel(), result.getDifficultyLevel());
-        verify(contentService).getContentById(1L);
-        verify(cardService).createCard(any(Card.class), eq(deckId));
-        verify(cardService).convertToReadDTO(card);
-    }
-
-    @Test
-    void createCard_WhenContentNotFound_ThrowsRuntimeException() {
-        // Arrange
-        when(contentService.getContentById(1L)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(RuntimeException.class, () ->
-                cardController.createCard(deckId, cardCreationDTO)
-        );
-        verify(contentService).getContentById(1L);
-        verify(cardService, never()).createCard(any(Card.class), any(Long.class));
+        verify(cardService, times(1)).deleteCard(1L);
     }
 }

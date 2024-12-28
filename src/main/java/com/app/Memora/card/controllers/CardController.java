@@ -1,14 +1,11 @@
 package com.app.Memora.card.controllers;
 
-import com.app.Memora.authentication.services.UserService;
 import com.app.Memora.card.dtos.CardCreationDTO;
 import com.app.Memora.card.dtos.CardEditDTO;
 import com.app.Memora.card.dtos.CardReadDTO;
 import com.app.Memora.card.entities.Card;
 import com.app.Memora.card.services.CardService;
 import com.app.Memora.content.services.ContentService;
-import com.app.Memora.deck.entities.Deck;
-import com.app.Memora.deck.services.DeckService;
 import com.app.Memora.enums.DifficultyLevel;
 import com.app.Memora.util.ApiResponse;
 import jakarta.validation.Valid;
@@ -32,7 +29,6 @@ public class CardController {
     private CardService cardService;
     @Autowired
     private ContentService contentService;
-
 
     @GetMapping
     public List<CardReadDTO> getAllCards() {
@@ -59,4 +55,20 @@ public class CardController {
         return cardService.convertToReadDTO(savedCard);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<CardReadDTO> updateCard(@PathVariable Long id, @Valid @RequestBody CardEditDTO cardEditDTO) {
+        Card card = new Card();
+        card.setId(id);
+        card.setContent(contentService.getContentById(cardEditDTO.getContentId())
+                .orElseThrow(() -> new RuntimeException("Content not found")));
+        card.setDifficultyLevel(DifficultyLevel.valueOf(String.valueOf(cardEditDTO.getDifficultyLevel())));
+        Card updatedCard = cardService.updateCard(id, card);
+        return ResponseEntity.ok(cardService.convertToReadDTO(updatedCard));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteCard(@PathVariable Long id) {
+        cardService.deleteCard(id);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Card deleted successfully", null));
+    }
 }

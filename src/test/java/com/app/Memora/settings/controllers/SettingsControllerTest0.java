@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class SettingsControllerTest {
+class SettingsControllerTest0 {
 
     @Mock
     private SettingsService settingsService;

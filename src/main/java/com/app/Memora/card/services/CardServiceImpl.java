@@ -63,7 +63,7 @@ public class CardServiceImpl implements CardService {
     }
     @Override
     public Optional<Card> getCardById(Long id) {
-        return Optional.empty();
+        return cardRepository.findById(id);
     }
 
     @Override

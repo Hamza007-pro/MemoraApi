@@ -5,33 +5,52 @@ on:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
+
 jobs:
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
     steps:
+      # Step 1: Checkout the repository
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0  # Ensures full repository is fetched
+
+      # Step 2: Set up JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: 'zulu' # Alternative distribution options are available.
+          distribution: 'zulu'
+
+      # Step 3: Cache SonarQube packages
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
+
+      # Step 4: Cache Maven dependencies
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+
+      # Step 5: Run the Maven build and SonarQube analysis
       - name: Build and analyze
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=hamza007-pro_memoraapi
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # For GitHub PR info
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # SonarCloud token
+          SPRING_PROFILES_ACTIVE: test              # Ensure correct Spring profile
+        run: |
+          mvn -B clean verify \
+          -Dspring.test.database.replace=none \
+          -Dspring.datasource.url=jdbc:h2:mem:testdb \
+          -Dspring.datasource.driverClassName=org.h2.Driver \
+          -Dspring.datasource.username=sa \
+          -Dspring.datasource.password=password \
+          org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          -Dsonar.projectKey=hamza007-pro_memoraapi

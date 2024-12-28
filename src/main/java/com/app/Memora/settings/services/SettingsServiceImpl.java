@@ -50,6 +50,9 @@ public class SettingsServiceImpl implements SettingsService {
     @Transactional
     public void toggleSpacedRepetition(Long userId, boolean enabled) {
         User user = userService.getUserById(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
         Settings settings = user.getSettings();
         settings.setSpacedRepetitionEnabled(enabled);
         settingsRepository.save(settings);

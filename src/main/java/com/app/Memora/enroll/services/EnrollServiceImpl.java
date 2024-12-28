@@ -55,8 +55,14 @@ public class EnrollServiceImpl implements EnrollService {
     }
 
     @Override
+    @Transactional
     public void unenrollUserFromDeck(Long userId, Long deckId) {
+        log.info("Unenrolling user {} from deck {}", userId, deckId);
 
+        Enroll enroll = enrollRepository.findByUserIdAndDeckId(userId, deckId)
+                .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found"));
+
+        enrollRepository.delete(enroll);
     }
 
     @Override

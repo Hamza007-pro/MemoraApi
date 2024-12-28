@@ -2,6 +2,7 @@ package com.app.Memora.settings.services;
 
 import com.app.Memora.authentication.entities.User;
 import com.app.Memora.authentication.services.UserService;
+import com.app.Memora.exceptions.ResourceNotFoundException;
 import com.app.Memora.settings.entities.Settings;
 import com.app.Memora.settings.repositories.SettingsRepository;
 import jakarta.transaction.Transactional;
@@ -27,12 +28,22 @@ public class SettingsServiceImpl implements SettingsService {
 
     @Override
     public Settings updateSettings(Settings settings) {
-        return null;
+        return settingsRepository.findById(settings.getId())
+                .map(existingSettings -> {
+                    existingSettings.setSpacedRepetitionEnabled(settings.isSpacedRepetitionEnabled());
+                    // Update other fields as necessary
+                    return settingsRepository.save(existingSettings);
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("Settings not found"));
     }
 
     @Override
     public Settings getUserSettings(Long userId) {
-        return null;
+        User user = userService.getUserById(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        return user.getSettings();
     }
 
     @Override
